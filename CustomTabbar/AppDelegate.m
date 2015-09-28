@@ -60,18 +60,19 @@
     tabbarVc.tabBar.backgroundImage = [UIImage imageNamed:@"cm2_msg_tab_mid_prs"];
     [tabbarVc.tabBar setTintColor:[UIColor whiteColor]];
     [tabbarVc.tabBar setShadowImage:[UIImage new]];//去除横线
+    tabbarVc.viewControllers = @[nav1,vc2,vc3,vc4];
     
     UIImage *image = [UIImage imageNamed:@"cm2_set_btn_sign_ad_prs"];
     
     UIImage *selTab = [image imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal];
-    CGSize tabSize = CGSizeMake(CGRectGetWidth(self.window.frame)/4, 49);
+    CGSize tabSize = CGSizeMake(CGRectGetWidth(self.window.frame)/tabbarVc.viewControllers.count, 49);
     UIGraphicsBeginImageContext(tabSize);
     [selTab drawInRect:CGRectMake(0, 0, tabSize.width, tabSize.height)];
     UIImage *reSizeImage = UIGraphicsGetImageFromCurrentImageContext();
     UIGraphicsEndImageContext();
     [tabbarVc.tabBar setSelectionIndicatorImage:reSizeImage];//添加选中后变色的图片
     
-    tabbarVc.viewControllers = @[nav1,vc2,vc3,vc4];
+    
     self.window.rootViewController = tabbarVc;
     self.window.backgroundColor = [UIColor whiteColor];
     [self.window makeKeyAndVisible];
