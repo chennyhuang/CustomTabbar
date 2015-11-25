@@ -11,10 +11,12 @@
 #import "ViewController2.h"
 #import "ViewController3.h"
 #import "ViewController4.h"
-
+#import "UIImage+RTTint.h"
 
 @interface AppDelegate ()
-
+{
+    UITabBarController *_tabbarVc;
+}
 @end
 
 @implementation AppDelegate
@@ -25,7 +27,8 @@
     self.window = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
 
     UITabBarController *tabbarVc = [[UITabBarController alloc] init];
-    
+    NSLog(@"%@",NSStringFromCGRect(tabbarVc.tabBar.frame));
+    _tabbarVc = tabbarVc;
     ViewController1 *vc1 = [[ViewController1 alloc] init];
     UINavigationController *nav1 = [[UINavigationController alloc] initWithRootViewController:vc1];
     ViewController2 *vc2 = [[ViewController2 alloc] init];
@@ -65,7 +68,7 @@
     UIImage *image = [UIImage imageNamed:@"cm2_set_btn_sign_ad_prs"];
     
     UIImage *selTab = [image imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal];
-    CGSize tabSize = CGSizeMake(CGRectGetWidth(self.window.frame)/tabbarVc.viewControllers.count, 49);
+    CGSize tabSize = CGSizeMake(CGRectGetWidth(self.window.frame)/tabbarVc.viewControllers.count, tabbarVc.tabBar.frame.size.height);
     UIGraphicsBeginImageContext(tabSize);
     [selTab drawInRect:CGRectMake(0, 0, tabSize.width, tabSize.height)];
     UIImage *reSizeImage = UIGraphicsGetImageFromCurrentImageContext();
@@ -76,7 +79,27 @@
     self.window.rootViewController = tabbarVc;
     self.window.backgroundColor = [UIColor whiteColor];
     [self.window makeKeyAndVisible];
+    //监听屏幕旋转，处理横屏
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(onDeviceOrientationChange:) name:UIDeviceOrientationDidChangeNotification object:nil];
     return YES;
+}
+
+-(void)onDeviceOrientationChange:(NSNotification *)note{
+
+    NSData *objColor = [[NSUserDefaults standardUserDefaults] objectForKey:@"myColor"];
+    UIColor *myColor = [NSKeyedUnarchiver unarchiveObjectWithData:objColor];
+    NSLog(@"%@",myColor);
+    UIImage *image = [UIImage imageNamed:@"cm2_set_btn_sign_ad_prs"];
+    if (myColor) {
+        image = [image rt_tintedImageWithColor:myColor];
+    }
+    UIImage *selTab = [image imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal];
+    CGSize tabSize = CGSizeMake(CGRectGetWidth(self.window.frame)/_tabbarVc.viewControllers.count, _tabbarVc.tabBar.frame.size.height);
+    UIGraphicsBeginImageContext(tabSize);
+    [selTab drawInRect:CGRectMake(0, 0, tabSize.width, tabSize.height)];
+    UIImage *reSizeImage = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+    [_tabbarVc.tabBar setSelectionIndicatorImage:reSizeImage];//添加选中后变色的图片
 }
 
 - (void)applicationWillResignActive:(UIApplication *)application {

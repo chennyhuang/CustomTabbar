@@ -37,14 +37,17 @@
     [self.colorsArray addObject:[UIColor colorWithRed:150/255.0 green:142/255.0 blue:254/255.0 alpha:1.0f]];
     [self.colorsArray addObject:[UIColor colorWithRed:198/255.0 green:255/255.0 blue:212/255.0 alpha:1.0f]];
     [self.colorsArray addObject:[UIColor colorWithRed:250/255.0 green:255/255.0 blue:211/255.0 alpha:1.0f]];
-    
     self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"push" style:UIBarButtonItemStylePlain target:self action:@selector(push:)];
-    
+}
+
+- (void)viewWillLayoutSubviews{
+    [super viewWillLayoutSubviews];
+    _tableview.frame = self.view.bounds;
 }
 
 - (UITableView *)tableview{
     if (!_tableview) {
-        _tableview = [[UITableView alloc] initWithFrame:CGRectMake(0, 0, [UIScreen mainScreen].bounds.size.width, [UIScreen mainScreen].bounds.size.height - 49) style:UITableViewStylePlain];
+        _tableview = [[UITableView alloc] initWithFrame:CGRectMake(0, 0, [UIScreen mainScreen].bounds.size.width, [UIScreen mainScreen].bounds.size.height) style:UITableViewStylePlain];
         _tableview.dataSource = self;
         _tableview.delegate = self;
     }
@@ -83,11 +86,20 @@
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
     UIColor *color = _colorsArray[indexPath.row];
-    UIImage *image = self.tabBarController.tabBar.selectionIndicatorImage;
-    UIImage *changedImage = [image rt_tintedImageWithColor:color];
-    self.tabBarController.tabBar.selectionIndicatorImage = changedImage;
     
-    NSLog(@"%@",image);
+    NSData *objColor = [NSKeyedArchiver archivedDataWithRootObject:color];
+    [[NSUserDefaults standardUserDefaults] setObject:objColor forKey:@"myColor"];
+    
+    UIImage *image = [UIImage imageNamed:@"cm2_set_btn_sign_ad_prs"];
+    UIImage *changedImage = [image rt_tintedImageWithColor:color];
+    
+    UIImage *selTab = [changedImage imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal];
+    CGSize tabSize = CGSizeMake(CGRectGetWidth(self.view.frame)/self.tabBarController.viewControllers.count, self.tabBarController.tabBar.frame.size.height);
+    UIGraphicsBeginImageContext(tabSize);
+    [selTab drawInRect:CGRectMake(0, 0, tabSize.width, tabSize.height)];
+    UIImage *reSizeImage = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+    [self.tabBarController.tabBar setSelectionIndicatorImage:reSizeImage];//添加选中后变色的图片
 }
 
 - (void)push:(id)sender {
